@@ -40,6 +40,15 @@
     <main id="top">
       <section class="hero">
         <div class="hero-bg"></div>
+        <div class="hero-mark" aria-hidden="true">JUNK HAULING</div>
+        <div class="hero-rail">
+          <div class="container hero-rail-inner">
+            <span>Local. Family-owned.</span>
+            <span>Same-week availability</span>
+            <span>Upfront pricing</span>
+            <span>Driveway-friendly dumpsters</span>
+          </div>
+        </div>
         <div class="container hero-content">
           <div class="hero-text">
             <img
@@ -239,33 +248,92 @@
                 <p><strong>Email:</strong> Becksjunkva@gmail.com</p>
               </div>
             </div>
-            <form class="contact-form" id="quote-form">
+            <form class="contact-form service-request-form" id="quote-form" action="#" method="post">
               <div class="field">
-                <label for="name">Name</label>
-                <input id="name" name="name" type="text" placeholder="Your name" required />
+                <label for="customer-name">Customer Name *</label>
+                <input
+                  id="customer-name"
+                  name="customerName"
+                  type="text"
+                  placeholder="Your name"
+                  required
+                />
               </div>
               <div class="field">
-                <label for="phone">Phone</label>
-                <input id="phone" name="phone" type="tel" placeholder="(555) 555-5555" required />
+                <label id="service-address-label">Service Address *</label>
+                <gmp-place-autocomplete
+                  id="service-address-autocomplete"
+                  aria-labelledby="service-address-label"
+                ></gmp-place-autocomplete>
+                <input id="service-address" name="serviceAddress" type="hidden" />
               </div>
+              <fieldset class="field full">
+                <legend>Service Type</legend>
+                <div class="checkbox-group">
+                  <label>
+                    <input type="checkbox" name="serviceType" value="dropoff" />
+                    Drop Off — You Fill It, We Haul It
+                  </label>
+                  <label>
+                    <input type="checkbox" name="serviceType" value="junkRemoval" />
+                    Junk Removal
+                  </label>
+                  <label>
+                    <input type="checkbox" name="serviceType" value="yardDebris" />
+                    Yard Debris
+                  </label>
+                  <label class="checkbox-other">
+                    <input type="checkbox" name="serviceType" value="other" />
+                    Other
+                    <input
+                      class="inline-input"
+                      type="text"
+                      name="serviceTypeOther"
+                      placeholder="Please specify"
+                    />
+                  </label>
+                </div>
+              </fieldset>
               <div class="field">
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" placeholder="you@email.com" required />
-              </div>
-              <div class="field">
-                <label for="address">Address / City</label>
-                <input id="address" name="address" type="text" placeholder="Street, City" />
+                <label for="desired-date">Desired Date *</label>
+                <input id="desired-date" name="desiredDate" type="date" required />
               </div>
               <div class="field full">
-                <label for="details">What needs hauled?</label>
+                <label for="request-details">Project Details (1000 characters max)</label>
                 <textarea
-                  id="details"
-                  name="details"
+                  id="request-details"
+                  name="requestDetails"
                   rows="4"
-                  placeholder="Example: old couch, yard waste, garage cleanout..."
+                  maxlength="1000"
+                  placeholder="Share any details that help us plan your pickup."
                 ></textarea>
               </div>
-              <button class="btn btn-outline" type="submit">Request a Quote</button>
+              <div class="field full terms-field">
+                <label class="checkbox-label">
+                  <input type="checkbox" name="acceptTerms" required />
+                  I have read and agree to the terms below.
+                </label>
+                <div class="terms-box" aria-label="Service request terms">
+                  <ol>
+                    <li>
+                      Customer agrees no prohibited items will be placed in the dump trailer such
+                      as hazardous waste, paint, chemicals, oil, tires, batteries, asbestos, and
+                      medical waste.
+                    </li>
+                    <li>Trailer must not be overfilled above the side rails.</li>
+                    <li>Customer is responsible for driveway/property clearance.</li>
+                    <li>Overweight or prohibited items may result in additional charges.</li>
+                    <li>Payment is due upon drop-off unless otherwise agreed.</li>
+                    <li>
+                      Beck’s Junk is not responsible for surface damage to driveways, lawns, or
+                      underground utilities.
+                    </li>
+                    <li>Additional $100 each for mattresses and box springs.</li>
+                    <li>Additional $55 each for appliances.</li>
+                  </ol>
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">Submit Request</button>
               <p class="form-message" role="status" aria-live="polite"></p>
             </form>
           </div>
@@ -290,6 +358,10 @@
       </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initAutocomplete"
+      defer
+    ></script>
   </body>
 </html>
