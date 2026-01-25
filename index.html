@@ -17,7 +17,7 @@
         <a class="brand" href="#top" aria-label="Beck's Junk Hauling & Removal home">
           <img
             class="brand-logo"
-            src="assets/hero_logo.png"
+            src="assets/text_logo.png"
             alt="Beck's Junk Hauling & Removal"
           />
           <span class="sr-only">Beck's Junk Hauling & Removal</span>
@@ -53,7 +53,7 @@
           <div class="hero-left">
             <img
               class="hero-logo"
-              src="assets/text_logo.png"
+              src="assets/hero_logo.png"
               alt="Beck's Junk Hauling & Removal logo"
             />
             <p class="hero-kicker">Local. Family-owned. Ready to haul.</p>
@@ -280,12 +280,23 @@
                 />
               </div>
               <div class="field">
-                <label id="service-address-label">Service Address *</label>
-                <gmp-place-autocomplete
-                  id="service-address-autocomplete"
-                  aria-labelledby="service-address-label"
-                ></gmp-place-autocomplete>
-                <input id="service-address" name="serviceAddress" type="hidden" />
+                <label for="service-address" id="service-address-label">Service Address *</label>
+                <div class="autocomplete">
+                  <input
+                    id="service-address"
+                    name="serviceAddress"
+                    type="text"
+                    placeholder="Start typing your address"
+                    autocomplete="off"
+                    required
+                  />
+                  <div
+                    id="address-results"
+                    class="autocomplete-results"
+                    role="listbox"
+                    aria-label="Address suggestions"
+                  ></div>
+                </div>
               </div>
               <fieldset class="field full">
                 <legend>Preferred Communication *</legend>
@@ -381,7 +392,7 @@
     <footer class="site-footer">
       <div class="container">
         <div class="footer-brand">
-          <img src="assets/hero_logo.png" alt="Beck's Junk Hauling & Removal logo" />
+          <img src="assets/text_logo.png" alt="Beck's Junk Hauling & Removal logo" />
           <strong>Beck's Junk Hauling & Removal</strong>
           <p>Local, family-owned junk hauling.</p>
         </div>
@@ -397,9 +408,5 @@
     </footer>
 
     <script src="script.js" defer></script>
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=&libraries=places&callback=initAutocomplete"
-      defer
-    ></script>
   </body>
 </html>

@@ -4,9 +4,19 @@ const cors = require("cors")({
     "https://vinnietran.github.io",
     "https://vinnietran.com",
     "http://127.0.0.1:5500",
-    "http://localhost:5500"
+    "http://localhost:5500",
   ],
   methods: ["POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"],
+});
+const corsAutocomplete = require("cors")({
+  origin: [
+    "https://vinnietran.github.io",
+    "https://vinnietran.com",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+  ],
+  methods: ["GET", "OPTIONS"],
   allowedHeaders: ["Content-Type"],
 });
 const sgMail = require("@sendgrid/mail");
@@ -199,6 +209,93 @@ Submitted At (UTC): ${submittedAt}
       return res.status(500).json({
         success: false,
         error: "Failed to send email.",
+      });
+    }
+  });
+});
+
+exports.placeAutocomplete = functions.https.onRequest((req, res) => {
+  corsAutocomplete(req, res, async () => {
+    if (req.method === "OPTIONS") {
+      return res.status(204).send("");
+    }
+
+    if (req.method !== "GET") {
+      return res
+        .status(405)
+        .json({ success: false, error: "Method not allowed" });
+    }
+
+    const input = typeof req.query.input === "string" ? req.query.input.trim() : "";
+    const sessionToken =
+      typeof req.query.sessionToken === "string" ? req.query.sessionToken.trim() : "";
+
+    if (!input) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing or invalid required fields",
+        missing: ["input"],
+      });
+    }
+
+    const apiKey = functions.config().google?.places_key;
+    if (!apiKey) {
+      return res.status(500).json({
+        success: false,
+        error: "Places API key not configured.",
+      });
+    }
+
+    const url = "https://places.googleapis.com/v1/places:autocomplete";
+
+    const body = {
+      input,
+    };
+
+    if (sessionToken) {
+      body.sessionToken = sessionToken;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask":
+            "suggestions.placePrediction.text,suggestions.placePrediction.placeId",
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Places API error:", data.error?.message || data);
+        return res.status(500).json({
+          success: false,
+          error: "Failed to fetch autocomplete results.",
+        });
+      }
+
+      const predictions = (data.suggestions || [])
+        .map((suggestion) => suggestion.placePrediction)
+        .filter(Boolean)
+        .map((prediction) => ({
+          description: prediction.text?.text || "",
+          placeId: prediction.placeId || "",
+        }))
+        .filter((prediction) => prediction.description);
+
+      return res.status(200).json({
+        success: true,
+        predictions,
+      });
+    } catch (err) {
+      console.error("Places API request failed:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to fetch autocomplete results.",
       });
     }
   });
