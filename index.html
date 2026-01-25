@@ -16,7 +16,7 @@
         <a class="brand" href="#top" aria-label="Beck's Junk Hauling & Removal home">
           <img
             class="brand-logo"
-            src="assets/text_logo.png"
+            src="assets/hero_logo.png"
             alt="Beck's Junk Hauling & Removal"
           />
           <span class="sr-only">Beck's Junk Hauling & Removal</span>
@@ -31,7 +31,6 @@
           <a href="#about">About</a>
           <a href="#services">Services</a>
           <a href="#how">How It Works</a>
-          <a href="#area">Service Area</a>
           <a href="#contact">Contact</a>
         </nav>
       </div>
@@ -53,7 +52,7 @@
           <div class="hero-text">
             <img
               class="hero-logo"
-              src="assets/hero_logo.png"
+              src="assets/text_logo.png"
               alt="Beck's Junk Hauling & Removal hauling truck logo"
             />
             <p class="hero-kicker">Local. Family-owned. Ready to haul.</p>
@@ -260,6 +259,26 @@
                 />
               </div>
               <div class="field">
+                <label for="customer-email">Email *</label>
+                <input
+                  id="customer-email"
+                  name="customerEmail"
+                  type="email"
+                  placeholder="you@email.com"
+                  required
+                />
+              </div>
+              <div class="field">
+                <label for="customer-phone">Cell Phone *</label>
+                <input
+                  id="customer-phone"
+                  name="customerPhone"
+                  type="tel"
+                  placeholder="(555) 555-5555"
+                  required
+                />
+              </div>
+              <div class="field">
                 <label id="service-address-label">Service Address *</label>
                 <gmp-place-autocomplete
                   id="service-address-autocomplete"
@@ -267,6 +286,23 @@
                 ></gmp-place-autocomplete>
                 <input id="service-address" name="serviceAddress" type="hidden" />
               </div>
+              <fieldset class="field full">
+                <legend>Preferred Communication *</legend>
+                <div class="checkbox-group">
+                  <label>
+                    <input type="radio" name="contactPreference" value="call" required />
+                    Call
+                  </label>
+                  <label>
+                    <input type="radio" name="contactPreference" value="text" required />
+                    Text
+                  </label>
+                  <label>
+                    <input type="radio" name="contactPreference" value="email" required />
+                    Email
+                  </label>
+                </div>
+              </fieldset>
               <fieldset class="field full">
                 <legend>Service Type</legend>
                 <div class="checkbox-group">
@@ -349,18 +385,18 @@
         </div>
         <div class="footer-contact">
           <p>(434) 282-7614</p>
-          <p>Becksjunkva@gmail.com</p>
+          <p>becksjunkva@gmail.com</p>
         </div>
         <div class="footer-note">
           <p>&copy; 2026 Beck's Junk Hauling & Removal. All rights reserved.</p>
-          <p>Website powered by V&amp;S Ventures LLC.</p>
+          <p>Business solution powered by V&amp;S Ventures LLC.</p>
         </div>
       </div>
     </footer>
 
     <script src="script.js" defer></script>
     <script
-      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initAutocomplete"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC25Gw-HDge6em-IO99FfFkjOWF4hzxI0Q&libraries=places&callback=initAutocomplete"
       defer
     ></script>
   </body>
