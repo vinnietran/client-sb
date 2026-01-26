@@ -22,18 +22,40 @@
           />
           <span class="sr-only">Beck's Junk Hauling & Removal</span>
         </a>
-        <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="bar"></span>
-          <span class="bar"></span>
-          <span class="bar"></span>
-        </button>
-        <nav id="site-nav" class="site-nav" aria-label="Primary">
-          <a href="#about">About</a>
-          <a href="#services">Services</a>
-          <a href="#how">How It Works</a>
-          <a href="#contact">Contact</a>
-        </nav>
+        <div class="nav-actions">
+          <nav id="site-nav" class="site-nav" aria-label="Primary">
+            <ul>
+              <li><a href="#about">About</a></li>
+              <li><a href="#services">Services</a></li>
+              <li><a href="#how">How It Works</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </nav>
+          <div class="nav-social">
+            <a
+              href="https://www.instagram.com/becksjunk"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Beck’s Junk Hauling & Removal on Instagram"
+            >
+              <img src="assets/icon-instagram.svg" alt="Instagram" />
+            </a>
+            <a
+              href="https://www.facebook.com/profile.php?id=61586212318086"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Beck’s Junk Hauling & Removal on Facebook"
+            >
+              <img src="assets/icon-facebook.svg" alt="Facebook" />
+            </a>
+          </div>
+          <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -89,16 +111,25 @@
       </section>
 
       <section id="about" class="about">
-        <div class="container split">
-          <div>
-            <h2>About Beck's Junk Hauling & Removal</h2>
-            <p>
-              Scott Beck is the owner of Beck’s Junk Hauling and Removal, based in Lake
-              Monticello. He started the business while assisting with real estate cleanouts and
-              quickly recognized the need for honest, reliable junk and yard debris removal
-              services. As a dedicated husband and father of four, Scott proudly serves homeowners
-              and surrounding areas with dependable, no-hassle service.
-            </p>
+        <div class="container">
+          <div class="about-grid">
+            <div class="about-content">
+              <h2>About Beck's Junk Hauling & Removal</h2>
+              <p>
+                Scott Beck is the owner of Beck’s Junk Hauling and Removal, based in Lake
+                Monticello. He started the business while assisting with real estate cleanouts and
+                quickly recognized the need for honest, reliable junk and yard debris removal
+                services. As a dedicated husband and father of four, Scott proudly serves homeowners
+                and surrounding areas with dependable, no-hassle service.
+              </p>
+            </div>
+            <div class="about-photo-wrapper">
+              <img
+                src="assets/family-photo.jpeg"
+                alt="Scott Beck and family, owners of Beck’s Junk Hauling & Removal"
+                class="about-family-photo"
+              />
+            </div>
           </div>
           <div class="about-card">
             <h3>Why locals call Beck's</h3>
@@ -392,13 +423,31 @@
     <footer class="site-footer">
       <div class="container">
         <div class="footer-brand">
-          <img src="assets/text_logo.png" alt="Beck's Junk Hauling & Removal logo" />
+          <img src="assets/hero_logo.png" alt="Beck's Junk Hauling & Removal logo" />
           <strong>Beck's Junk Hauling & Removal</strong>
           <p>Local, family-owned junk hauling.</p>
         </div>
         <div class="footer-contact">
           <p>(434) 282-7614</p>
           <p>becksjunkva@gmail.com</p>
+        </div>
+        <div class="footer-social">
+          <a
+            href="https://www.instagram.com/becksjunk"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Beck’s Junk Hauling & Removal on Instagram"
+          >
+            <img src="assets/icon-instagram.svg" alt="Instagram" />
+          </a>
+          <a
+            href="https://www.facebook.com/profile.php?id=61586212318086"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Beck’s Junk Hauling & Removal on Facebook"
+          >
+            <img src="assets/icon-facebook.svg" alt="Facebook" />
+          </a>
         </div>
         <div class="footer-note">
           <p>&copy; 2026 Beck's Junk Hauling & Removal. All rights reserved.</p>
