@@ -1,19 +1,21 @@
-const header = document.querySelector('.site-header');
 const navToggle = document.querySelector('.nav-toggle');
+const nav = document.querySelector('.site-nav');
 const navLinks = document.querySelectorAll('.site-nav a');
 
-if (navToggle && header) {
+if (navToggle && nav) {
   navToggle.addEventListener('click', () => {
-    const isOpen = header.classList.toggle('open');
+    const isOpen = nav.classList.toggle('is-open');
+    navToggle.classList.toggle('is-open', isOpen);
     navToggle.setAttribute('aria-expanded', String(isOpen));
   });
 }
 
 navLinks.forEach((link) => {
   link.addEventListener('click', () => {
-    if (header.classList.contains('open')) {
-      header.classList.remove('open');
-      navToggle.setAttribute('aria-expanded', 'false');
+    if (nav?.classList.contains('is-open')) {
+      nav.classList.remove('is-open');
+      navToggle?.classList.remove('is-open');
+      navToggle?.setAttribute('aria-expanded', 'false');
     }
   });
 });
