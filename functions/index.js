@@ -1,25 +1,32 @@
 const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const sgMail = require("@sendgrid/mail");
+
+admin.initializeApp();
+const bucket = admin.storage().bucket();
+
+const allowedOrigins = [
+  "https://vinnietran.github.io",
+  "https://vinnietran.com",
+  "http://127.0.0.1:5500",
+  "http://localhost:5500",
+];
+
 const cors = require("cors")({
-  origin: [
-    "https://vinnietran.github.io",
-    "https://vinnietran.com",
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-  ],
+  origin: allowedOrigins,
   methods: ["POST", "OPTIONS"],
   allowedHeaders: ["Content-Type"],
 });
 const corsAutocomplete = require("cors")({
-  origin: [
-    "https://vinnietran.github.io",
-    "https://vinnietran.com",
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-  ],
+  origin: allowedOrigins,
   methods: ["GET", "OPTIONS"],
   allowedHeaders: ["Content-Type"],
 });
-const sgMail = require("@sendgrid/mail");
+const corsUploads = require("cors")({
+  origin: allowedOrigins,
+  methods: ["POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"],
+});
 
 sgMail.setApiKey(functions.config().sendgrid.api_key);
 
@@ -53,6 +60,7 @@ exports.submitServiceRequest = functions.https.onRequest((req, res) => {
       desiredDate,
       notes,
       contactPreference,
+      photoUrls,
       acceptTerms,
     } = req.body || {};
 
@@ -110,6 +118,13 @@ exports.submitServiceRequest = functions.https.onRequest((req, res) => {
     const notesValue =
       typeof notes === "string" && notes.trim() !== "" ? notes.trim() : "None provided";
     const submittedAt = new Date().toISOString();
+    const normalizedPhotoUrls = Array.isArray(photoUrls)
+      ? photoUrls.filter((url) => typeof url === "string" && url.trim())
+      : [];
+    const photosLine =
+      normalizedPhotoUrls.length > 0
+        ? normalizedPhotoUrls.map((url, index) => `${index + 1}) ${url}`).join("\n")
+        : "None provided";
 
     const baseSubject =
       functions.config().sendgrid.subject || "New Service Request - Beck's Junk";
@@ -132,62 +147,111 @@ Preferred Contact: ${contactPreference.trim()}
 Notes:
 ${notesValue}
 
+Photos:
+${photosLine}
+
 Terms Accepted: ${acceptTerms}
 Submitted At (UTC): ${submittedAt}
 `.trim();
 
     const htmlBody = `
-      <div style="font-family: Arial, sans-serif; background:#f7f7f7; padding:20px;">
-        <div style="max-width:620px; margin:0 auto; background:#111; color:#fff; border-radius:12px; overflow:hidden;">
-          <div style="padding:20px; background:#b71c1c;">
-            <h2 style="margin:0; font-size:22px;">New Service Request - Beck's Junk</h2>
-          </div>
-          <div style="padding:20px; background:#1a1a1a;">
-            <table style="width:100%; border-collapse:collapse; font-size:14px;">
-              <tr>
-                <td style="padding:8px 0; color:#bdbdbd;">Customer</td>
-                <td style="padding:8px 0;">${escapeHtml(customerName.trim())}</td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0; color:#bdbdbd;">Email</td>
-                <td style="padding:8px 0;">${escapeHtml(customerEmail.trim())}</td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0; color:#bdbdbd;">Phone</td>
-                <td style="padding:8px 0;">${escapeHtml(customerPhone.trim())}</td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0; color:#bdbdbd;">Service Address</td>
-                <td style="padding:8px 0;">${escapeHtml(serviceAddress.trim())}</td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0; color:#bdbdbd;">Service Type(s)</td>
-                <td style="padding:8px 0;">${escapeHtml(serviceTypeNormalized)}</td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0; color:#bdbdbd;">Other Service Type</td>
-                <td style="padding:8px 0;">${escapeHtml(other)}</td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0; color:#bdbdbd;">Desired Date</td>
-                <td style="padding:8px 0;">${escapeHtml(desiredDate.trim())}</td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0; color:#bdbdbd;">Preferred Contact</td>
-                <td style="padding:8px 0;">${escapeHtml(contactPreference.trim())}</td>
-              </tr>
-            </table>
-            <div style="margin-top:16px; padding:12px; background:#0f0f0f; border:1px solid #333; border-radius:8px;">
-              <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#bdbdbd;">Notes</div>
-              <div style="margin-top:8px; font-size:14px;">${escapeHtml(notesValue).replace(/\n/g, "<br>")}</div>
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta name="color-scheme" content="light" />
+          <meta name="supported-color-schemes" content="light" />
+          <style>
+            @media (prefers-color-scheme: dark) {
+              body,
+              .email-body,
+              .card {
+                background: #ffffff !important;
+                color: #111111 !important;
+              }
+              .muted {
+                color: #4a4a4a !important;
+              }
+              a {
+                color: #0b4f6c !important;
+              }
+            }
+          </style>
+        </head>
+        <body style="margin:0; padding:0; background:#f2f2f2; color:#111111;">
+          <div class="email-body" style="font-family: Arial, sans-serif; background:#f2f2f2; padding:20px; color:#111111;">
+            <div class="card" style="max-width:620px; margin:0 auto; background:#ffffff; color:#111111; border-radius:12px; overflow:hidden; border:1px solid #e0e0e0;">
+              <div style="padding:20px; background:#b71c1c; color:#ffffff;">
+                <h2 style="margin:0; font-size:22px; color:#ffffff; -webkit-text-fill-color:#ffffff;">New Service Request - Beck's Junk</h2>
+              </div>
+              <div style="padding:20px; background:#ffffff; color:#111111;">
+                <table role="presentation" style="width:100%; border-collapse:collapse; font-size:14px; color:#111111;">
+                  <tr>
+                    <td class="muted" style="padding:8px 0; color:#4a4a4a; width:160px;">Customer</td>
+                    <td style="padding:8px 0; color:#111111;">${escapeHtml(customerName.trim())}</td>
+                  </tr>
+                  <tr>
+                    <td class="muted" style="padding:8px 0; color:#4a4a4a; width:160px;">Email</td>
+                    <td style="padding:8px 0; color:#111111;">${escapeHtml(customerEmail.trim())}</td>
+                  </tr>
+                  <tr>
+                    <td class="muted" style="padding:8px 0; color:#4a4a4a; width:160px;">Phone</td>
+                    <td style="padding:8px 0; color:#111111;">${escapeHtml(customerPhone.trim())}</td>
+                  </tr>
+                  <tr>
+                    <td class="muted" style="padding:8px 0; color:#4a4a4a; width:160px;">Service Address</td>
+                    <td style="padding:8px 0; color:#111111;">${escapeHtml(serviceAddress.trim())}</td>
+                  </tr>
+                  <tr>
+                    <td class="muted" style="padding:8px 0; color:#4a4a4a; width:160px;">Service Type(s)</td>
+                    <td style="padding:8px 0; color:#111111;">${escapeHtml(serviceTypeNormalized)}</td>
+                  </tr>
+                  <tr>
+                    <td class="muted" style="padding:8px 0; color:#4a4a4a; width:160px;">Other Service Type</td>
+                    <td style="padding:8px 0; color:#111111;">${escapeHtml(other)}</td>
+                  </tr>
+                  <tr>
+                    <td class="muted" style="padding:8px 0; color:#4a4a4a; width:160px;">Desired Date</td>
+                    <td style="padding:8px 0; color:#111111;">${escapeHtml(desiredDate.trim())}</td>
+                  </tr>
+                  <tr>
+                    <td class="muted" style="padding:8px 0; color:#4a4a4a; width:160px;">Preferred Contact</td>
+                    <td style="padding:8px 0; color:#111111;">${escapeHtml(contactPreference.trim())}</td>
+                  </tr>
+                </table>
+                <div style="margin-top:16px; padding:12px; background:#fafafa; border:1px solid #e0e0e0; border-radius:8px;">
+                  <div class="muted" style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#6a6a6a;">Notes</div>
+                  <div style="margin-top:8px; font-size:14px; color:#111111;">${escapeHtml(
+                    notesValue,
+                  ).replace(/\n/g, "<br>")}</div>
+                </div>
+                <div style="margin-top:16px; padding:12px; background:#fafafa; border:1px solid #e0e0e0; border-radius:8px;">
+                  <div class="muted" style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#6a6a6a;">Photos</div>
+                  ${
+                    normalizedPhotoUrls.length > 0
+                      ? `<ul style="margin:8px 0 0; padding-left:18px; color:#111111;">
+                          ${normalizedPhotoUrls
+                            .map(
+                              (url) =>
+                                `<li style="margin-bottom:6px; color:#111111;"><a href="${escapeHtml(
+                                  url,
+                                )}" style="color:#0b4f6c; text-decoration:underline;">View photo</a></li>`,
+                            )
+                            .join("")}
+                        </ul>`
+                      : `<div style="margin-top:8px; font-size:14px; color:#111111;">None provided</div>`
+                  }
+                </div>
+                <div class="muted" style="margin-top:16px; font-size:12px; color:#5a5a5a;">
+                  <div><strong>Terms Accepted:</strong> ${acceptTerms}</div>
+                  <div><strong>Submitted At (UTC):</strong> ${escapeHtml(submittedAt)}</div>
+                </div>
+              </div>
             </div>
-            <div style="margin-top:16px; font-size:12px; color:#9e9e9e;">
-              <div><strong>Terms Accepted:</strong> ${acceptTerms}</div>
-              <div><strong>Submitted At (UTC):</strong> ${escapeHtml(submittedAt)}</div>
-            </div>
           </div>
-        </div>
-      </div>
+        </body>
+      </html>
     `;
 
     const msg = {
@@ -296,6 +360,95 @@ exports.placeAutocomplete = functions.https.onRequest((req, res) => {
       return res.status(500).json({
         success: false,
         error: "Failed to fetch autocomplete results.",
+      });
+    }
+  });
+});
+
+exports.createPhotoUploadUrl = functions.https.onRequest((req, res) => {
+  corsUploads(req, res, async () => {
+    if (req.method === "OPTIONS") {
+      return res.status(204).send("");
+    }
+
+    if (req.method !== "POST") {
+      return res
+        .status(405)
+        .json({ success: false, error: "Method not allowed" });
+    }
+
+    const {
+      fileName,
+      contentType,
+      size,
+      requestId,
+      customerNameSlug,
+      index,
+    } = req.body || {};
+
+    const missing = [];
+    if (!fileName || typeof fileName !== "string") missing.push("fileName");
+    if (!contentType || typeof contentType !== "string") missing.push("contentType");
+    if (!requestId || typeof requestId !== "string") missing.push("requestId");
+
+    if (missing.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing or invalid required fields",
+        missing,
+      });
+    }
+
+    if (!contentType.startsWith("image/")) {
+      return res.status(400).json({
+        success: false,
+        error: "Only image uploads are allowed.",
+      });
+    }
+
+    if (typeof size === "number" && size > 5 * 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        error: "Each image must be 5MB or less.",
+      });
+    }
+
+    const safeSlug =
+      typeof customerNameSlug === "string" && customerNameSlug.trim()
+        ? customerNameSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "")
+        : "customer";
+    const safeName = fileName.toLowerCase().replace(/[^a-z0-9.]+/g, "-");
+    const safeRequestId = requestId.replace(/[^a-z0-9-]/gi, "-");
+
+    const indexPrefix = Number.isInteger(index) ? `${index + 1}-` : "";
+    const filePath = `serviceRequests/${safeRequestId}-${safeSlug}/photos/${indexPrefix}${safeName}`;
+    const file = bucket.file(filePath);
+
+    try {
+      const [uploadUrl] = await file.getSignedUrl({
+        version: "v4",
+        action: "write",
+        expires: Date.now() + 15 * 60 * 1000,
+        contentType,
+      });
+
+      const [viewUrl] = await file.getSignedUrl({
+        version: "v4",
+        action: "read",
+        expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
+        success: true,
+        uploadUrl,
+        viewUrl,
+        path: filePath,
+      });
+    } catch (error) {
+      console.error("Failed to create upload URL:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to create upload URL.",
       });
     }
   });

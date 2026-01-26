@@ -387,6 +387,19 @@
                   placeholder="Share any details that help us plan your pickup."
                 ></textarea>
               </div>
+              <div class="field full">
+                <label for="service-photos">Photos (optional)</label>
+                <input
+                  id="service-photos"
+                  name="photos"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                />
+                <p class="field-hint">
+                  Optional: upload photos of what you need hauled (up to 5 images).
+                </p>
+              </div>
               <div class="field full terms-field">
                 <label class="checkbox-label">
                   <input type="checkbox" name="acceptTerms" required />
@@ -455,6 +468,20 @@
         </div>
       </div>
     </footer>
+
+    <div id="submit-overlay" class="submit-overlay" aria-hidden="true">
+      <div class="submit-overlay__card" role="status" aria-live="polite">
+        <div class="submit-overlay__spinner" aria-hidden="true"></div>
+        <div class="submit-overlay__check" aria-hidden="true">
+          <svg viewBox="0 0 52 52" focusable="false" aria-hidden="true">
+            <circle class="submit-overlay__check-circle" cx="26" cy="26" r="24"></circle>
+            <path class="submit-overlay__check-mark" d="M16 27.5l7 7 13-14"></path>
+          </svg>
+        </div>
+        <div class="submit-overlay__title">Submitting your request...</div>
+        <p class="submit-overlay__message">Please wait while we upload your details.</p>
+      </div>
+    </div>
 
     <script src="script.js" defer></script>
   </body>

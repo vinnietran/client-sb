@@ -24,14 +24,125 @@ const SERVICE_REQUEST_ENDPOINT =
   'https://us-central1-becks-junk-removal.cloudfunctions.net/submitServiceRequest';
 const PLACES_ENDPOINT =
   'https://us-central1-becks-junk-removal.cloudfunctions.net/placeAutocomplete';
+const PHOTO_UPLOAD_ENDPOINT =
+  'https://us-central1-becks-junk-removal.cloudfunctions.net/createPhotoUploadUrl';
 
 const form = document.getElementById('quote-form');
 const status = form?.querySelector('.form-message');
 const addressInput = document.getElementById('service-address');
 const addressResults = document.getElementById('address-results');
+const photoInput = document.getElementById('service-photos');
+const submitOverlay = document.getElementById('submit-overlay');
+const submitOverlayTitle = submitOverlay?.querySelector('.submit-overlay__title');
+const submitOverlayMessage = submitOverlay?.querySelector('.submit-overlay__message');
 
 let debounceId = null;
 let sessionToken = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+let selectedPhotoFiles = [];
+let overlayTimeoutId = null;
+
+const getFileKey = (file) => `${file.name}-${file.size}-${file.lastModified}`;
+
+const syncPhotoInput = (files) => {
+  if (!photoInput) return;
+  const dataTransfer = new DataTransfer();
+  files.forEach((file) => dataTransfer.items.add(file));
+  photoInput.files = dataTransfer.files;
+};
+
+const setOverlayText = (title, message) => {
+  if (submitOverlayTitle) {
+    submitOverlayTitle.textContent = title;
+  }
+  if (submitOverlayMessage) {
+    submitOverlayMessage.textContent = message;
+  }
+};
+
+const clearOverlayTimeout = () => {
+  if (overlayTimeoutId) {
+    window.clearTimeout(overlayTimeoutId);
+    overlayTimeoutId = null;
+  }
+};
+
+const showSubmitOverlay = ({ title, message }) => {
+  if (!submitOverlay) return;
+  clearOverlayTimeout();
+  setOverlayText(title, message);
+  submitOverlay.classList.add('is-visible');
+  submitOverlay.classList.remove('is-success');
+  submitOverlay.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('is-overlay-open');
+};
+
+const showSubmitSuccess = ({ title, message }) => {
+  if (!submitOverlay) return;
+  clearOverlayTimeout();
+  setOverlayText(title, message);
+  submitOverlay.classList.add('is-visible', 'is-success');
+  submitOverlay.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('is-overlay-open');
+  overlayTimeoutId = window.setTimeout(() => {
+    hideSubmitOverlay();
+  }, 3200);
+};
+
+const hideSubmitOverlay = () => {
+  if (!submitOverlay) return;
+  clearOverlayTimeout();
+  submitOverlay.classList.remove('is-visible', 'is-success');
+  submitOverlay.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('is-overlay-open');
+};
+
+const slugify = (value) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const uploadPhotos = async (files, requestId, customerName) => {
+  const slug = slugify(customerName || 'customer') || 'customer';
+
+  return Promise.all(
+    files.map(async (file, index) => {
+      const response = await fetch(PHOTO_UPLOAD_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          contentType: file.type,
+          size: file.size,
+          requestId,
+          customerNameSlug: slug,
+          index,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success || !data.uploadUrl || !data.viewUrl) {
+        throw new Error(data.error || 'Failed to prepare photo upload.');
+      }
+
+      const uploadResponse = await fetch(data.uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload photo.');
+      }
+
+      return data.viewUrl;
+    }),
+  );
+};
 
 const clearResults = () => {
   if (!addressResults) return;
@@ -106,6 +217,44 @@ if (addressInput) {
   });
 }
 
+if (photoInput) {
+  photoInput.addEventListener('change', () => {
+    const incoming = Array.from(photoInput.files || []);
+    if (!incoming.length) return;
+
+    const combined = [...selectedPhotoFiles];
+    const existingKeys = new Set(combined.map(getFileKey));
+
+    incoming.forEach((file) => {
+      const key = getFileKey(file);
+      if (!existingKeys.has(key)) {
+        combined.push(file);
+        existingKeys.add(key);
+      }
+    });
+
+    if (combined.length > 5) {
+      selectedPhotoFiles = combined.slice(0, 5);
+      if (status) {
+        status.classList.remove('success');
+        status.textContent = 'Please upload no more than 5 images.';
+      }
+    } else {
+      selectedPhotoFiles = combined;
+    }
+
+    syncPhotoInput(selectedPhotoFiles);
+  });
+}
+
+if (submitOverlay) {
+  submitOverlay.addEventListener('click', () => {
+    if (submitOverlay.classList.contains('is-success')) {
+      hideSubmitOverlay();
+    }
+  });
+}
+
 if (form && status) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -119,6 +268,51 @@ if (form && status) {
       form.querySelectorAll('input[name="serviceType"]:checked'),
     ).map((input) => input.value);
 
+    const rawFiles = selectedPhotoFiles.length
+      ? selectedPhotoFiles
+      : photoInput
+        ? Array.from(photoInput.files || [])
+        : [];
+    if (rawFiles.length > 5) {
+      status.textContent = 'Please upload no more than 5 images.';
+      return;
+    }
+
+    const invalidType = rawFiles.find((file) => !file.type.startsWith('image/'));
+    if (invalidType) {
+      status.textContent = 'Only image files are allowed.';
+      return;
+    }
+
+    const oversizedFile = rawFiles.find((file) => file.size > 5 * 1024 * 1024);
+    if (oversizedFile) {
+      status.textContent = 'Each image must be 5MB or less.';
+      return;
+    }
+
+    showSubmitOverlay({
+      title: rawFiles.length ? 'Uploading photos...' : 'Submitting your request...',
+      message: 'Please wait while we process your request.',
+    });
+    status.classList.remove('success');
+    status.textContent = rawFiles.length ? 'Uploading photos...' : 'Submitting request...';
+
+    let photoUrls = [];
+    if (rawFiles.length > 0) {
+      const customerName = form.querySelector('#customer-name')?.value?.trim() || 'customer';
+      const requestId = new Date().toISOString().replace(/[:.]/g, '-');
+
+      try {
+        photoUrls = await uploadPhotos(rawFiles, requestId, customerName);
+      } catch (error) {
+        console.error('Photo upload failed:', error);
+        hideSubmitOverlay();
+        status.textContent =
+          'We could not upload your photos. Please try again or submit without photos.';
+        return;
+      }
+    }
+
     const payload = {
       customerName: form.querySelector('#customer-name')?.value?.trim() || '',
       customerEmail: form.querySelector('#customer-email')?.value?.trim() || '',
@@ -131,10 +325,8 @@ if (form && status) {
       contactPreference:
         form.querySelector('input[name="contactPreference"]:checked')?.value || '',
       acceptTerms: form.querySelector('input[name="acceptTerms"]')?.checked === true,
+      photoUrls: photoUrls.length ? photoUrls : undefined,
     };
-
-    status.classList.remove('success');
-    status.textContent = 'Submitting request...';
 
     try {
       const response = await fetch(SERVICE_REQUEST_ENDPOINT, {
@@ -150,19 +342,30 @@ if (form && status) {
         status.classList.remove('success');
         status.textContent =
           data.error || 'There was an error submitting your request. Please try again.';
+        hideSubmitOverlay();
         return;
       }
 
       status.classList.add('success');
-      status.textContent =
-        data.message || 'Request received. Someone from our team will be in touch soon.';
+      const successMessage =
+        'Thank you for your request. Someone from the team will be in touch soon!';
+      status.textContent = successMessage;
+      showSubmitSuccess({
+        title: 'Request sent!',
+        message: successMessage,
+      });
       form.reset();
       clearResults();
       sessionToken = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      selectedPhotoFiles = [];
+      if (photoInput) {
+        photoInput.value = '';
+      }
     } catch (error) {
       status.classList.remove('success');
       status.textContent =
         'There was an error submitting your request. Please check your connection and try again.';
+      hideSubmitOverlay();
     }
   });
 }

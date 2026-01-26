@@ -784,6 +784,16 @@ textarea {
   font-family: inherit;
 }
 
+input[type="file"] {
+  padding: 0.45rem;
+}
+
+.field-hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
 input:focus,
 textarea:focus {
   outline: 2px solid rgba(229, 57, 53, 0.6);
@@ -1013,5 +1023,113 @@ textarea:focus {
 
   .brand span {
     font-size: 0.85rem;
+  }
+}
+
+.submit-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 15, 15, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+  z-index: 9999;
+}
+
+.submit-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.submit-overlay__card {
+  width: min(92vw, 420px);
+  background: #ffffff;
+  color: #111111;
+  border-radius: 22px;
+  padding: 2rem 2rem 1.75rem;
+  text-align: center;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+}
+
+.submit-overlay__spinner {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.25rem;
+  border-radius: 50%;
+  border: 6px solid #e6e6e6;
+  border-top-color: #b71c1c;
+  animation: submit-spin 1s linear infinite;
+}
+
+.submit-overlay__check {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 1.25rem;
+  display: none;
+}
+
+.submit-overlay__check svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.submit-overlay__check-circle {
+  fill: none;
+  stroke: #1b8f3b;
+  stroke-width: 4;
+  opacity: 0.2;
+}
+
+.submit-overlay__check-mark {
+  fill: none;
+  stroke: #1b8f3b;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+}
+
+.submit-overlay__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.submit-overlay__message {
+  margin: 0;
+  color: #4a4a4a;
+}
+
+.submit-overlay.is-success .submit-overlay__spinner {
+  display: none;
+}
+
+.submit-overlay.is-success .submit-overlay__check {
+  display: block;
+}
+
+.submit-overlay.is-success .submit-overlay__check-mark {
+  animation: submit-check 0.7s ease forwards;
+}
+
+body.is-overlay-open {
+  overflow: hidden;
+}
+
+@keyframes submit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes submit-check {
+  to {
+    stroke-dashoffset: 0;
   }
 }
