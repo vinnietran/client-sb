@@ -8,6 +8,8 @@ const bucket = admin.storage().bucket();
 const allowedOrigins = [
   "https://vinnietran.github.io",
   "https://vinnietran.com",
+  "https://www.becksjunk.com",
+  "https://becksjunk.com",
   "http://127.0.0.1:5500",
   "http://localhost:5500",
 ];
