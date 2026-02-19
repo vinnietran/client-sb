@@ -816,6 +816,26 @@ textarea:focus {
   letter-spacing: 0.6px;
 }
 
+/* Partnerships */
+.partnerships {
+  padding: 0 0 4.5rem;
+  background: var(--black);
+}
+
+.partnerships-card {
+  background: var(--dark);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: min(100%, 520px);
+  margin: 0 auto;
+}
+
+.partnerships-photo {
+  width: 100%;
+  border-radius: 8px;
+}
+
 /* Footer */
 .site-footer {
   padding: 2.5rem 0;
