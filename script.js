@@ -20,6 +20,85 @@ navLinks.forEach((link) => {
   });
 });
 
+const offeringsCarousel = document.querySelector('[data-carousel]');
+
+if (offeringsCarousel) {
+  const track = offeringsCarousel.querySelector('[data-carousel-track]');
+  const prevButton = offeringsCarousel.querySelector('[data-carousel-prev]');
+  const nextButton = offeringsCarousel.querySelector('[data-carousel-next]');
+  const slides = Array.from(offeringsCarousel.querySelectorAll('.offering-slide'));
+  const dots = Array.from(
+    offeringsCarousel.parentElement?.querySelectorAll('[data-carousel-dot]') || [],
+  );
+
+  if (track && prevButton && nextButton && slides.length) {
+    let activeIndex = 0;
+    let autoAdvanceId = null;
+
+    const updateCarousel = () => {
+      track.style.transform = `translateX(-${activeIndex * 100}%)`;
+
+      slides.forEach((slide, index) => {
+        const isActive = index === activeIndex;
+        slide.setAttribute('aria-hidden', String(!isActive));
+      });
+
+      dots.forEach((dot, index) => {
+        const isActive = index === activeIndex;
+        dot.classList.toggle('is-active', isActive);
+        dot.setAttribute('aria-selected', String(isActive));
+        dot.setAttribute('aria-pressed', String(isActive));
+      });
+    };
+
+    const goToSlide = (index) => {
+      activeIndex = (index + slides.length) % slides.length;
+      updateCarousel();
+    };
+
+    const startAutoAdvance = () => {
+      window.clearInterval(autoAdvanceId);
+      autoAdvanceId = window.setInterval(() => {
+        goToSlide(activeIndex + 1);
+      }, 4200);
+    };
+
+    const stopAutoAdvance = () => {
+      window.clearInterval(autoAdvanceId);
+      autoAdvanceId = null;
+    };
+
+    prevButton.addEventListener('click', () => {
+      goToSlide(activeIndex - 1);
+      startAutoAdvance();
+    });
+
+    nextButton.addEventListener('click', () => {
+      goToSlide(activeIndex + 1);
+      startAutoAdvance();
+    });
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        goToSlide(index);
+        startAutoAdvance();
+      });
+    });
+
+    offeringsCarousel.addEventListener('mouseenter', stopAutoAdvance);
+    offeringsCarousel.addEventListener('mouseleave', startAutoAdvance);
+    offeringsCarousel.addEventListener('focusin', stopAutoAdvance);
+    offeringsCarousel.addEventListener('focusout', (event) => {
+      if (!offeringsCarousel.contains(event.relatedTarget)) {
+        startAutoAdvance();
+      }
+    });
+
+    updateCarousel();
+    startAutoAdvance();
+  }
+}
+
 const SERVICE_REQUEST_ENDPOINT =
   'https://us-central1-becks-junk-removal.cloudfunctions.net/submitServiceRequest';
 const PLACES_ENDPOINT =
