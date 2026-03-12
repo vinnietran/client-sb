@@ -1109,6 +1109,26 @@ textarea:focus {
   gap: 0.75rem;
 }
 
+.footer-google-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-google-link img {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.footer-google-link:hover,
+.footer-google-link:focus {
+  text-decoration: underline;
+}
+
 .footer-social img {
   width: 24px;
   height: 24px;
