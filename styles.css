@@ -813,28 +813,212 @@ p {
   color: var(--muted);
 }
 
-/* Testimonials */
-.testimonials {
+/* Reviews */
+.reviews {
   padding: 4.5rem 0;
-  background: var(--dark);
+  background: linear-gradient(180deg, var(--dark), #080808);
 }
 
-.testimonial-grid {
-  display: grid;
-  gap: 1.5rem;
-}
-
-.testimonial {
-  background: var(--black);
-  padding: 1.8rem;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.reviews-shell {
+  background: #f7f7f7;
+  color: #111111;
+  border-radius: 12px;
+  padding: clamp(1.25rem, 2.2vw, 2rem);
   box-shadow: var(--shadow);
 }
 
-.testimonial span {
-  color: var(--muted);
+.reviews-summary {
+  display: grid;
+  gap: 1.2rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.reviews-summary h3 {
+  color: #111111;
+  margin-bottom: 0.35rem;
+}
+
+.reviews-summary p {
+  color: #4c4c4c;
+}
+
+.reviews-kicker {
+  margin: 0 0 0.3rem;
+  color: var(--red-deep);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14rem;
+  text-transform: uppercase;
+}
+
+.reviews-score {
+  display: grid;
+  gap: 0.15rem;
+  justify-items: start;
+}
+
+.reviews-score strong {
+  font-family: "Oswald", "Arial Narrow", sans-serif;
+  font-size: clamp(2.1rem, 6vw, 3rem);
+  line-height: 1;
+}
+
+.reviews-score span:last-child {
+  color: #6a6a6a;
   font-size: 0.9rem;
+}
+
+.review-stars {
+  color: #f6aa00;
+  letter-spacing: 0.02rem;
+  line-height: 1;
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
+  gap: 1rem;
+}
+
+.review-card {
+  min-height: 245px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #ffffff;
+  color: #111111;
+  padding: 1.15rem;
+  border: 1px solid #e7e7e7;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.review-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.review-card__header strong {
+  color: #f6aa00;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.review-date {
+  margin-left: auto;
+  color: #737373;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.review-card p {
+  color: #242424;
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+.review-card footer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: center;
+  margin-top: auto;
+}
+
+.review-card footer span:not(.review-avatar) {
+  overflow: hidden;
+  color: #536074;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.review-card footer img {
+  width: 20px;
+  height: 20px;
+}
+
+.review-avatar {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #9aa3b2;
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.reviews .btn-outline {
+  border-color: #111111;
+  color: #111111;
+}
+
+.reviews .btn-outline:hover {
+  background: #111111;
+  color: #ffffff;
+}
+
+.reviews-drawer {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1.4rem;
+}
+
+.reviews-drawer summary {
+  order: 0;
+  width: fit-content;
+  margin: 0 auto;
+  cursor: pointer;
+  list-style: none;
+}
+
+.reviews-drawer summary::-webkit-details-marker {
+  display: none;
+}
+
+.reviews-drawer summary::marker {
+  content: "";
+}
+
+.reviews-drawer[open] summary {
+  order: 2;
+  margin: 1.4rem auto 0;
+}
+
+.reviews-grid--drawer {
+  order: 1;
+}
+
+.show-less-label {
+  display: none;
+}
+
+.reviews-drawer[open] .show-more-label {
+  display: none;
+}
+
+.reviews-drawer[open] .show-less-label {
+  display: inline;
+}
+
+.reviews-drawer[open] .reviews-grid--drawer {
+  animation: reviews-drawer-open 180ms ease;
+}
+
+@keyframes reviews-drawer-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Contact */
@@ -1171,8 +1355,9 @@ textarea:focus {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .testimonial-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .reviews-summary {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
   }
 
   .contact-wrap {
