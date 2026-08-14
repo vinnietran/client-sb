@@ -105,12 +105,15 @@ const PLACES_ENDPOINT =
   'https://us-central1-becks-junk-removal.cloudfunctions.net/placeAutocomplete';
 const PHOTO_UPLOAD_ENDPOINT =
   'https://us-central1-becks-junk-removal.cloudfunctions.net/createPhotoUploadUrl';
+const MAX_PHOTO_SIZE_BYTES = 15 * 1024 * 1024;
+const MAX_PHOTO_SIZE_LABEL = '15MB';
 
 const form = document.getElementById('quote-form');
 const status = form?.querySelector('.form-message');
 const addressInput = document.getElementById('service-address');
 const addressResults = document.getElementById('address-results');
 const photoInput = document.getElementById('service-photos');
+const photoPreview = document.getElementById('photo-preview');
 const submitOverlay = document.getElementById('submit-overlay');
 const submitOverlayTitle = submitOverlay?.querySelector('.submit-overlay__title');
 const submitOverlayMessage = submitOverlay?.querySelector('.submit-overlay__message');
@@ -118,6 +121,7 @@ const submitOverlayMessage = submitOverlay?.querySelector('.submit-overlay__mess
 let debounceId = null;
 let sessionToken = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 let selectedPhotoFiles = [];
+let photoPreviewUrls = [];
 let overlayTimeoutId = null;
 
 const getFileKey = (file) => `${file.name}-${file.size}-${file.lastModified}`;
@@ -127,6 +131,77 @@ const syncPhotoInput = (files) => {
   const dataTransfer = new DataTransfer();
   files.forEach((file) => dataTransfer.items.add(file));
   photoInput.files = dataTransfer.files;
+};
+
+const formatFileSize = (bytes) => {
+  if (bytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const clearPhotoPreviewUrls = () => {
+  photoPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+  photoPreviewUrls = [];
+};
+
+const renderPhotoPreviews = () => {
+  if (!photoPreview) return;
+
+  clearPhotoPreviewUrls();
+  photoPreview.replaceChildren();
+  photoPreview.hidden = selectedPhotoFiles.length === 0;
+
+  if (!selectedPhotoFiles.length) return;
+
+  const summary = document.createElement('p');
+  summary.className = 'photo-preview__summary';
+  summary.textContent = `${selectedPhotoFiles.length} of 5 images selected`;
+  photoPreview.append(summary);
+
+  const list = document.createElement('ul');
+  list.className = 'photo-preview__list';
+
+  selectedPhotoFiles.forEach((file, index) => {
+    const previewUrl = URL.createObjectURL(file);
+    photoPreviewUrls.push(previewUrl);
+
+    const item = document.createElement('li');
+    item.className = 'photo-preview__item';
+
+    const thumbnail = document.createElement('img');
+    thumbnail.className = 'photo-preview__thumbnail';
+    thumbnail.src = previewUrl;
+    thumbnail.alt = '';
+    thumbnail.addEventListener('error', () => {
+      thumbnail.classList.add('is-unavailable');
+    });
+
+    const details = document.createElement('div');
+    details.className = 'photo-preview__details';
+
+    const name = document.createElement('span');
+    name.className = 'photo-preview__name';
+    name.textContent = file.name;
+
+    const size = document.createElement('span');
+    size.className = 'photo-preview__size';
+    size.textContent = formatFileSize(file.size);
+
+    const removeButton = document.createElement('button');
+    removeButton.className = 'photo-preview__remove';
+    removeButton.type = 'button';
+    removeButton.dataset.photoIndex = String(index);
+    removeButton.setAttribute('aria-label', `Remove ${file.name}`);
+    removeButton.textContent = 'Remove';
+
+    details.append(name, size, removeButton);
+    item.append(thumbnail, details);
+    list.append(item);
+  });
+
+  photoPreview.append(list);
 };
 
 const setOverlayText = (title, message) => {
@@ -323,6 +398,29 @@ if (photoInput) {
     }
 
     syncPhotoInput(selectedPhotoFiles);
+    renderPhotoPreviews();
+  });
+}
+
+if (photoPreview) {
+  photoPreview.addEventListener('click', (event) => {
+    const removeButton = event.target.closest('[data-photo-index]');
+    if (!removeButton) return;
+
+    const index = Number(removeButton.dataset.photoIndex);
+    if (!Number.isInteger(index) || index < 0 || index >= selectedPhotoFiles.length) return;
+
+    selectedPhotoFiles.splice(index, 1);
+    syncPhotoInput(selectedPhotoFiles);
+    renderPhotoPreviews();
+
+    if (
+      status &&
+      (status.textContent.startsWith('Please upload no more than') ||
+        status.textContent.startsWith('Each image must be'))
+    ) {
+      status.textContent = '';
+    }
   });
 }
 
@@ -363,9 +461,9 @@ if (form && status) {
       return;
     }
 
-    const oversizedFile = rawFiles.find((file) => file.size > 5 * 1024 * 1024);
+    const oversizedFile = rawFiles.find((file) => file.size > MAX_PHOTO_SIZE_BYTES);
     if (oversizedFile) {
-      status.textContent = 'Each image must be 5MB or less.';
+      status.textContent = `Each image must be ${MAX_PHOTO_SIZE_LABEL} or less.`;
       return;
     }
 
@@ -440,6 +538,7 @@ if (form && status) {
       if (photoInput) {
         photoInput.value = '';
       }
+      renderPhotoPreviews();
     } catch (error) {
       status.classList.remove('success');
       status.textContent =
