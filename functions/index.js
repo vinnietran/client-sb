@@ -4,6 +4,8 @@ const sgMail = require("@sendgrid/mail");
 
 admin.initializeApp();
 const bucket = admin.storage().bucket();
+const MAX_PHOTO_SIZE_BYTES = 15 * 1024 * 1024;
+const MAX_PHOTO_SIZE_LABEL = "15MB";
 
 const allowedOrigins = [
   "https://vinnietran.github.io",
@@ -408,10 +410,10 @@ exports.createPhotoUploadUrl = functions.https.onRequest((req, res) => {
       });
     }
 
-    if (typeof size === "number" && size > 5 * 1024 * 1024) {
+    if (typeof size === "number" && size > MAX_PHOTO_SIZE_BYTES) {
       return res.status(400).json({
         success: false,
-        error: "Each image must be 5MB or less.",
+        error: `Each image must be ${MAX_PHOTO_SIZE_LABEL} or less.`,
       });
     }
 

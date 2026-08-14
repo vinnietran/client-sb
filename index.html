@@ -9,7 +9,11 @@
     />
     <title>Beck's Junk Hauling & Removal</title>
     <link rel="icon" type="image/png" href="assets/text_logo.png" />
-    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="styles.css?v=reviews-20260506-2"
+      onerror="this.onerror=null;this.href='https://www.becksjunk.com/styles.css?v=reviews-20260506-2';"
+    />
   </head>
   <body>
     <header class="site-header">
@@ -347,7 +351,7 @@
                 <footer>
                   <span class="review-avatar">AZ</span>
                   <span>Andrew Zarski</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -363,7 +367,7 @@
                 <footer>
                   <span class="review-avatar">KS</span>
                   <span>Katherine Strickland</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -379,7 +383,7 @@
                 <footer>
                   <span class="review-avatar">JR</span>
                   <span>Justin Rivera</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -396,7 +400,7 @@
                 <footer>
                   <span class="review-avatar">RA</span>
                   <span>Ryan Armitage</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
             </div>
@@ -420,7 +424,7 @@
                 <footer>
                   <span class="review-avatar">PS</span>
                   <span>Peggy Shanklin</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -435,7 +439,7 @@
                 <footer>
                   <span class="review-avatar">ME</span>
                   <span>Mary Eash</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -451,7 +455,7 @@
                 <footer>
                   <span class="review-avatar">GN</span>
                   <span>Garrett "Doodle" Norvelle</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -467,7 +471,7 @@
                 <footer>
                   <span class="review-avatar">JF</span>
                   <span>John Fornecker</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -484,7 +488,7 @@
                 <footer>
                   <span class="review-avatar">NG</span>
                   <span>Nikilyn Grimsley</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -501,7 +505,7 @@
                 <footer>
                   <span class="review-avatar">JM</span>
                   <span>Jared McLaughlin</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -518,7 +522,7 @@
                 <footer>
                   <span class="review-avatar">MB</span>
                   <span>Matthew Basinger</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -535,7 +539,7 @@
                 <footer>
                   <span class="review-avatar">CB</span>
                   <span>Christy Lynn Beck</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
               <article class="review-card">
@@ -551,7 +555,7 @@
                 <footer>
                   <span class="review-avatar">MS</span>
                   <span>Matt Strickland</span>
-                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+                  <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
                 </footer>
               </article>
             </div>
@@ -696,8 +700,14 @@
                   multiple
                 />
                 <p class="field-hint">
-                  Optional: upload photos of what you need hauled (up to 5 images).
+                  Optional: upload photos of what you need hauled (up to 5 images, 15MB each).
                 </p>
+                <div
+                  id="photo-preview"
+                  class="photo-preview"
+                  aria-live="polite"
+                  hidden
+                ></div>
               </div>
               <div class="field full terms-field">
                 <label class="checkbox-label">
@@ -764,7 +774,7 @@
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src="assets/icon-google.svg" alt="" aria-hidden="true" />
+              <img src="assets/icon-google.svg" alt="" aria-hidden="true" width="20" height="20" />
               Find us on Google
             </a>
           </p>
